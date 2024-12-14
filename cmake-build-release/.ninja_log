@@ -1,6 +1,0 @@
-# ninja log v6
-28	163	7555438750188885	CMakeFiles/FiltrationOnePhase.dir/model/addvection_diffusion.cpp.obj	8fd62742c2e363f4
-3	362	7557846104502335	CMakeFiles/FiltrationOnePhase.dir/main.cpp.obj	eba6e7c7fba098d
-8	53	7557039623633182	CMakeFiles/FiltrationOnePhase.dir/utils/params/params2.cpp.obj	7cf814ac6497a411
-7	1010	7557846104543199	CMakeFiles/FiltrationOnePhase.dir/utils/params/params.cpp.obj	1cd47454c97d6271
-1011	1091	7557846114570548	FiltrationOnePhase.exe	198e4b41a27622f9

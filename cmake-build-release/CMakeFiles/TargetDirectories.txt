@@ -1,3 +1,0 @@
-C:/Users/TMN/CLionProjects/FiltrationOnePhase/cmake-build-release/CMakeFiles/FiltrationOnePhase.dir
-C:/Users/TMN/CLionProjects/FiltrationOnePhase/cmake-build-release/CMakeFiles/edit_cache.dir
-C:/Users/TMN/CLionProjects/FiltrationOnePhase/cmake-build-release/CMakeFiles/rebuild_cache.dir
