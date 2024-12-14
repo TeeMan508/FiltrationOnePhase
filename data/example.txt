@@ -1,0 +1,17 @@
+Method:
+	format = .vtu                          #output file format
+	mesh = mesh/c20.vtu                    #relative path to mesh file
+	output = output_ethier_steinman        #relative path of output folder
+	test = EthierSteinman                  #selected test
+	adaptive:
+		dClvl = 1                            #shift conditions at finer levels
+		dCmax = 5                            #refinement condition
+		dCmin = 4                            #coarsening condition
+		max_levels = 2                       #maximal number of refinement levels
+	/
+
+	time:
+		T = 0.25                                #total time
+		dt = 0.01                               #time step size
+	/
+/
