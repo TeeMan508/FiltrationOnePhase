@@ -4,6 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(inmost REQUIRED)
 
+message(${INMOST_LIBRARY_DIRS})
 link_directories(${INMOST_LIBRARY_DIRS})
 include_directories(${INMOST_INCLUDE_DIRS})
 add_definitions(${INMOST_DEFINITIONS})
@@ -18,4 +19,6 @@ add_executable(FiltrationOnePhase main.cpp
         solver/solver.cpp
         solver/solver.h
 )
+
+target_link_libraries(FiltrationOnePhase ${INMOST_LIBRARIES})
 

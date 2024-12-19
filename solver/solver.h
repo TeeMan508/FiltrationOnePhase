@@ -2,7 +2,7 @@
 #define SOLVER_H
 
 #include "inmost.h"
-#include "../utils/calculations/calculations.h"
+
 
 using namespace INMOST;
 

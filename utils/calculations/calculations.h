@@ -5,14 +5,11 @@
 using namespace INMOST;
 
 
-template<typename MatrixType>
-void gradient(Cell c, BlockEntry& UVW, Matrix<MatrixType>& G);
+void gradient(Cell c, BlockEntry& UVW, vMatrix& G);
 
-template<typename MatrixType>
-void gradient_to_strain(const Matrix<MatrixType>& G, Matrix<MatrixType>& strain);
+void gradient_to_strain(const vMatrix& G, vMatrix& strain);
 
-template<typename MatrixType>
-void stress_to_traction(const Matrix<MatrixType>& stress, const rMatrix& n, Matrix<MatrixType>& trac)
+void stress_to_traction(const vMatrix& stress, const rMatrix& n, vMatrix& trac);
 
 
 #endif //CALCULATIONS_H
