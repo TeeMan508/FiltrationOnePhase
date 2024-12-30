@@ -9,16 +9,16 @@ link_directories(${INMOST_LIBRARY_DIRS})
 include_directories(${INMOST_INCLUDE_DIRS})
 add_definitions(${INMOST_DEFINITIONS})
 
-add_executable(FiltrationOnePhase main.cpp
-        utils/params/params.h
-        utils/params/params.cpp
-        model/darcy_one_phase.h
-        model/darcy_one_phase.cpp
-        utils/calculations/calculations.cpp
-        utils/calculations/calculations.h
-        solver/solver.cpp
-        solver/solver.h
-)
+#add_executable(FiltrationOnePhase main.cpp
+#        utils/params/params.h
+#        utils/params/params.cpp
+#        model/darcy_one_phase.h
+#        model/darcy_one_phase.cpp
+#        utils/calculations/calculations.cpp
+#        utils/calculations/calculations.h
+#        solver/solver.cpp
+#        solver/solver.h
+add_executable(FiltrationOnePhase tmp.cpp)
 
 target_link_libraries(FiltrationOnePhase ${INMOST_LIBRARIES})
 

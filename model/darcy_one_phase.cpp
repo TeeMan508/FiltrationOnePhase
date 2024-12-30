@@ -2,7 +2,7 @@
 
 #include <utility>
 #include "../utils/calculations/calculations.h"
-#include "../solver/solver.h"
+// #include "../solver/solver.h"
 
 
 void OnePhaseModel::init_parameters(const Parameters &params) {
@@ -10,7 +10,6 @@ void OnePhaseModel::init_parameters(const Parameters &params) {
 }
 
 void OnePhaseModel::init_mesh(const Mesh &mesh) {
-
     this->mesh = mesh;
 }
 
@@ -38,7 +37,7 @@ void OnePhaseModel::setup_tags() {
         "Boundary Conditions", DATA_REAL, FACE, FACE, 7);
 
     TagRealArray tag_stiffness_tensor = this->mesh.CreateTag(
-        "Stiffness Tensor", DATA_REAL, CELL, CELL, 36);
+        "Stiffness Tensor", DATA_REAL, CELL, NONE, 36);
 
 	TagReal tag_dual_volume = this->mesh.CreateTag(
 		"Dual Volume", DATA_REAL, NODE, NODE, 1);
@@ -185,7 +184,7 @@ void OnePhaseModel::assemble_internal_part(BlockEntry &uvw, Residual &residual) 
 		}
 		faces.RemMarker(belong_to_cell_marker); // стираем метки когда закончили с ячейкой
 	}
-	mesh.ReleaseMarker(belong_to_cell_marker, NODE);
+	mesh.ReleaseMarker(belong_to_cell_marker, FACE);
 }
 
 void OnePhaseModel::assemble_boundary_part(BlockEntry &uvw, Residual &residual) {
@@ -349,6 +348,7 @@ bool OnePhaseModel::solve_elasticity_model() {
 
 	if (solver.Solve(Resid.GetResidual(), Update))
 	{
+
 		for (Mesh::iteratorNode v = this->mesh.BeginNode(); v != this->mesh.EndNode(); ++v)
 			uvw.Value(v->self()) -= Update[uvw.Index(v->self())];
 		success = true;
@@ -362,6 +362,7 @@ Tag OnePhaseModel::get_tag(const std::string& name) {
 }
 
 void OnePhaseModel::save_result(const std::string &filename) {
+
 	this->mesh.Save(filename);
 }
 
