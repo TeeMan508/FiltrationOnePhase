@@ -29,7 +29,7 @@ void fill_tag_bc(TagRealArray &bc, Mesh &mesh, MarkerType &boundary_marker) {
                 3, 1, 1., 0., 0);
             continue;
         }
-
+        // Other boundaries
         bc(*face, 3, 1) = rMatrix::Make(
                 3, 1, 0., 1., 0.);
 
@@ -61,7 +61,7 @@ rMatrix gamma(const TagRealArray &tag_K, const Cell &c, const Face &f, double ne
     c.Centroid(x_cell.data());
     rMatrix const K = tag_K(c, 3, 3);
     rMatrix delta = (x_face - x_cell) * neightbor_multiplier;
-    double r = normal.DotProduct(delta);
+    double r = fabs(normal.DotProduct(delta));
     return K * normal - lambda(tag_K, c, f) / r * delta;
 }
 
@@ -75,13 +75,13 @@ double internal_conductivity(const TagRealArray &tag_K, const Cell &c1, const Ce
     rMatrix delta_1 = (x_face - x_cell_1) * 1.;
     rMatrix delta_2 = (x_face - x_cell_1) * -1.;
 
-    double r1 = normal.DotProduct(delta_1);
-    double r2 = normal.DotProduct(delta_2);
+    double r1 = fabs(normal.DotProduct(delta_1));
+    double r2 = fabs(normal.DotProduct(delta_2));
 
     double lambda_1 = lambda(tag_K, c1, f);
-    double lambda_2 = -1*lambda(tag_K, c2, f);
-    rMatrix gamma_1 = gamma(tag_K, c1, f, 1.);
-    rMatrix gamma_2 = gamma(tag_K, c2, f, -1.);
+    double lambda_2 = lambda(tag_K, c2, f);
+    // rMatrix gamma_1 = gamma(tag_K, c1, f, 1.);
+    // rMatrix gamma_2 = gamma(tag_K, c2, f, -1.);
 
     return lambda_1 * lambda_2 / (lambda_1*r2 + lambda_2*r1);
 }
@@ -93,7 +93,7 @@ double gamma_b(const TagRealArray &tag_K, const TagRealArray &tag_bc, const Cell
     c.Centroid(x_cell.data());
 
     rMatrix delta = (x_face - x_cell) * 1.;
-    double r = normal.DotProduct(delta);
+    double r = fabs(normal.DotProduct(delta));
 
     Storage::real_array bc = tag_bc[f];
     double alpha = bc[0];
@@ -113,7 +113,7 @@ double boundary_conductivity(const TagRealArray &tag_K, const TagRealArray &tag_
     c.Centroid(x_cell.data());
 
     rMatrix delta = (x_face - x_cell) * 1.;
-    double r = normal.DotProduct(delta);
+    double r = fabs(normal.DotProduct(delta));
 
     Storage::real_array bc = tag_bc[f];
     double alpha = bc[0];
