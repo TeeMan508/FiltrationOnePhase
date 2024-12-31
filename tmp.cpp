@@ -6,27 +6,37 @@ using namespace INMOST;
 
 void fill_tag_K(const TagRealArray &K, Mesh &mesh) {
     rMatrix k_buf(3,3);
-    // for (int i = 0; i < 3; i++) {
-    //     for (int j = 0; j < 3; j++) {
-    //         k_buf[i, j] = 1.;
-    //     }
-    // }
     for (Mesh::iteratorCell c = mesh.BeginCell(); c!= mesh.EndCell(); ++c) {
-        K(*c, 3, 3) = rMatrix::Make(3,3, 1., 1., 1., 1., 1., 1., 1., 1., 1.);
+        K(*c, 3, 3) = rMatrix::Make(3,3, 1., 0., 0., 0., 1., 0., 0., 0., 1.);
     }
 }
 
-void fill_tag_bc(TagRealArray &bc, Mesh &mesh) {
+void fill_tag_bc(TagRealArray &bc, Mesh &mesh, MarkerType &boundary_marker) {
     rMatrix normal(3,1);
     for (Mesh::iteratorFace face = mesh.BeginFace(); face != mesh.EndFace(); ++face) {
+        if (face->getFaces(boundary_marker).empty()) continue;
         face->UnitNormal(normal.data());
 
-        if (fabs(normal[0] + 1.) < 1e-5) // Left Boundary
+        if (fabs(normal[0] + 1.) < 1e-5) {
+            // Left Boundary
             bc(*face, 3, 1) = rMatrix::Make(
                 3, 1, 1., 0., 1.); // TODO: REFACTOR BC
-        if (fabs(normal[0] - 1.) < 1e-5) // Right Boundary
+            continue;
+        }
+        if (fabs(normal[0] - 1.) < 1e-5) {
+            // Right Boundary
             bc(*face, 3, 1) = rMatrix::Make(
-                3, 1, 0., 1., 0);
+                3, 1, 1., 0., 0);
+            continue;
+        }
+
+        bc(*face, 3, 1) = rMatrix::Make(
+                3, 1, 0., 1., 0.);
+
+
+
+
+
     }
 }
 
@@ -130,13 +140,16 @@ int main(int argc, char ** argv) {
         return 1;
     }
 
+    MarkerType boundary_marker = m.CreateMarker();
+    m.MarkBoundaryFaces(boundary_marker);
+
     TagRealArray tag_permeability = m.CreateTag("perm", DATA_REAL, CELL, NONE, 9);
     TagRealArray tag_boundary_cond = m.CreateTag("bc", DATA_REAL, FACE, FACE, 3);
     TagReal pressure = m.CreateTag("pressure", DATA_REAL, CELL, NONE, 1);
 
     fill_tag_K(tag_permeability, m);
 
-    fill_tag_bc(tag_boundary_cond, m);
+    fill_tag_bc(tag_boundary_cond, m, boundary_marker);
 
     fill_initial_tag_p(pressure, m);
 
@@ -150,8 +163,6 @@ int main(int argc, char ** argv) {
     Sparse::Vector Update("", aut.GetFirstIndex(), aut.GetLastIndex());
     Residual Resid("", aut.GetFirstIndex(), aut.GetLastIndex());
 
-    MarkerType boundary_marker = m.CreateMarker();
-    m.MarkBoundaryFaces(boundary_marker);
 
     for (Mesh::iteratorCell c = m.BeginCell(); c!= m.EndCell(); ++c) {
         ElementArray<Face> cell_faces = c->getFaces();
@@ -163,6 +174,7 @@ int main(int argc, char ** argv) {
                 gamma_b_rmatrix[0, 0] = gamma_b_;
 
                 Resid[p.Index(c->self())] += f->Area()*(T_b_ * p.Unknown(c->self()) - gamma_b_rmatrix);
+                f->RemMarker(boundary_marker);
             }
             else {
                 ElementArray<Cell> cells = f->getCells();
@@ -173,7 +185,6 @@ int main(int argc, char ** argv) {
                 double T_ij = internal_conductivity(tag_permeability, c->self(), neighbor_cell, f->self());
 
                 Resid[p.Index(c->self())] += f->Area() * T_ij * (p.Unknown(c->self()) - p.Unknown(neighbor_cell->self()));
-                // std::cout << "done" << std::endl;
             }
 
         }
@@ -181,6 +192,7 @@ int main(int argc, char ** argv) {
     }
 
     Solver solver(Solver::INNER_ILU2);
+    solver.SetParameterEnum("verbosity", 1);
     solver.SetMatrix(Resid.GetJacobian());
 
 
