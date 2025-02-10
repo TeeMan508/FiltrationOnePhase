@@ -18,7 +18,10 @@ add_definitions(${INMOST_DEFINITIONS})
 #        utils/calculations/calculations.h
 #        solver/solver.cpp
 #        solver/solver.h
+#)
+
 add_executable(FiltrationOnePhase tmp.cpp)
 
+add_subdirectory(grid_gen)
 target_link_libraries(FiltrationOnePhase ${INMOST_LIBRARIES})
 
