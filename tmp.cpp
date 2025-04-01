@@ -13,8 +13,14 @@ void fill_tag_K(const TagRealArray &K, Mesh &mesh) {
 
 void fill_tag_K_prepared(const TagRealArray &K, Mesh &mesh) {
     TagRealArray tag_perm = mesh.GetTag("PERM");
+    rMatrix buf;
     for (Mesh::iteratorCell c = mesh.BeginCell(); c!= mesh.EndCell(); ++c) {
-        K(*c, 3, 3) = rMatrix::FromTensor(tag_perm[*c].data(), tag_perm[*c].size());
+        buf = rMatrix::FromTensor(tag_perm[*c].data(), tag_perm[*c].size());
+        K(*c, 3, 3) = buf;
+        // std::cout << buf(0, 0) << " " << buf(0, 1) << " " << buf(0, 2) << std::endl;
+        // std::cout << buf(1, 0) << " " << buf(1, 1) << " " << buf(1, 2) << std::endl;
+        // std::cout << buf(2, 0) << " " << buf(2, 1) << " " << buf(2, 2) << std::endl;
+        // std::cout << "############" << std::endl;
     }
 }
 
@@ -44,12 +50,21 @@ void fill_tag_bc(TagRealArray &bc, Mesh &mesh, MarkerType &boundary_marker) {
 
 void fill_tag_bc_prepared(TagRealArray &bc, Mesh &mesh, MarkerType &boundary_marker) {
     TagRealArray tag_bc_prepared = mesh.GetTag("BOUNDARY_CONDITION");
-
+    rMatrix buf(3, 1);
+    int counter = 0;
     for (Mesh::iteratorFace face = mesh.BeginFace(); face != mesh.EndFace(); ++face) {
-
         if (face->getFaces(boundary_marker).empty()) continue;
-        bc(*face, 3, 1) = rMatrix::FromVector(tag_bc_prepared[*face].data(), tag_bc_prepared[*face].size());
+        buf = rMatrix::FromVector(tag_bc_prepared[*face].data(), tag_bc_prepared[*face].size());
+        if (buf[0]*buf[0] + buf[1]*buf[1] + buf[1]*buf[1] < 1e-6) {
+            buf[0] = 1.;// TODO Нет ГУ для верхней и нижней плоскостей! Из за этого нули в гу
+            buf[1] = 0.;
+            buf[2] = 1.;
+        }
+        bc(*face, 3, 1) = buf;
+        // std::cout << buf[0] << " " << buf[1] << " " << buf[2] << " " << std::endl;
+        counter++;
     }
+    // std::cout << "Counter " << counter << std::endl;
 }
 
 
@@ -234,8 +249,6 @@ int main(int argc, char ** argv) {
     {
         for (Mesh::iteratorCell c = m->BeginCell(); c != m->EndCell(); ++c)
             p.Value(c->self()) -= Update[p.Index(c->self())];
-
-        std::cout << "Saved ../out.vtk" << std::endl;
     }
     else std::cout << "Solve failed!" << std::endl;
 
@@ -251,8 +264,13 @@ int main(int argc, char ** argv) {
     //         tag_error[*c] = rMatrix::FromVector(tag_boundary_cond[f], 3);
     //     }
     // }
+    try {
+        m->Save(argv[2]);
+        std::cout << "Saving to " << argv[2] << std::endl;
+    } catch (...) {
+        std::cout << "Output file not specified, saving to ../out.vtk" << std::endl;
+        m->Save("../out.vtk");
+    }
 
-
-    m->Save("../out.vtk");
     return 0;
 }

@@ -20,8 +20,10 @@ add_definitions(${INMOST_DEFINITIONS})
 #        solver/solver.h
 #)
 
-add_executable(FiltrationOnePhase tmp.cpp)
+add_executable(FiltrationOnePhase main.cpp
+        model/one_phase_model.h
+        model/one_phase_model.cpp)
 
-add_subdirectory(grid_gen)
+add_subdirectory(utils/grid_gen)
 target_link_libraries(FiltrationOnePhase ${INMOST_LIBRARIES})
 
